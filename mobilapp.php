@@ -1,8 +1,10 @@
 <?php
 require 'simple_html_dom.php';
+// weboldal adatok lekérése (város url-ban határozható meg)
 $city = $_GET["city"];
 $html = file_get_html("https://koponyeg.hu/elorejelzes/".HuToEn($city));
 
+// maximum és minimum hőmérsékletek felvitele tömbbe
 $temperatures = array();
 foreach($html->find('div[class=temp-max] div div') as $element) {
 	$temperatures['max'][] = intval($element->plaintext);
@@ -10,13 +12,16 @@ foreach($html->find('div[class=temp-max] div div') as $element) {
 foreach($html->find('div[class=temp-min] div div') as $element) {
 	$temperatures['min'][] = intval($element->plaintext);
 }
+// napok felvitele az egyszerűség kedvéért
 for($i = 0; $i < count($temperatures['max']); $i++) {
 	$d = strtotime("+$i Days");
 	$temperatures['date'][] = date("m.d.", $d);
 }
 
+// adatok kiíratása JSON-ben
 echo json_encode($temperatures);
 
+// ékezetes karakterek átalakítása nem ékezetessé
 function HuToEn($s)
 {
  $hu = array('/é/','/É/','/á/','/Á/','/ó/','/Ó/','/ö/','/Ö/','/ő/','/Ő/','/ú/','/Ú/','/ű/','/Ű/','/ü/','/Ü/','/í/','/Í/','/ /');
